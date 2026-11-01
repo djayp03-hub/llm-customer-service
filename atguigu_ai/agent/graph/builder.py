@@ -14,6 +14,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.state import CompiledStateGraph
 
 from atguigu_ai.agent.graph.state import MessageProcessingState
+from atguigu_ai.shared.session_runtime import timed_node
 from atguigu_ai.agent.graph.nodes import (
     understand_node,
     policy_node,
@@ -56,11 +57,11 @@ def build_message_processing_graph() -> CompiledStateGraph:
     graph = StateGraph(MessageProcessingState)
     
     # 添加节点
-    graph.add_node("understand", understand_node)
-    graph.add_node("policy", policy_node)
-    graph.add_node("action", action_node)
-    graph.add_node("guard", guard_node)
-    graph.add_node("response", response_node)
+    graph.add_node("understand", timed_node("understand", understand_node))
+    graph.add_node("policy", timed_node("policy", policy_node))
+    graph.add_node("action", timed_node("action", action_node))
+    graph.add_node("guard", timed_node("guard", guard_node))
+    graph.add_node("response", timed_node("response", response_node))
     
     # 设置入口边
     graph.add_edge(START, "understand")

@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
@@ -116,6 +118,14 @@ class AtguiguServer:
         
         # 注册路由
         self._register_routes(app)
+        from atguigu_ai.api.auth import IdentityMiddleware
+        tokens = json.loads(os.environ.get("CUSTOMER_SERVICE_API_TOKENS", "{}"))
+        if not isinstance(tokens, dict) or any(
+            not isinstance(k, str) or not k or not isinstance(v, str) or not v
+            for k, v in tokens.items()
+        ):
+            raise ValueError("CUSTOMER_SERVICE_API_TOKENS must map non-empty tokens to user IDs")
+        app.add_middleware(IdentityMiddleware, tokens=tokens)
         
         return app
     
@@ -154,6 +164,10 @@ class AtguiguServer:
             """
             if not self.agent:
                 raise HTTPException(status_code=503, detail="Agent not ready")
+            from atguigu_ai.shared.identity import authenticated_user
+            user_id = authenticated_user.get()
+            if user_id and request.sender != user_id:
+                raise HTTPException(status_code=403, detail="Session does not belong to authenticated user")
             
             try:
                 # 创建用户消息

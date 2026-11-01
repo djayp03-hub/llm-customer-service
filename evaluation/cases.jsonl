@@ -1,0 +1,6 @@
+{"id":"order-01","input":"帮我查一下订单详情","expected_flow":"query_order_detail","category":"explicit"}
+{"id":"cancel-01","input":"我不想要了，帮我取消还没发货的那单","expected_flow":"cancel_order","category":"paraphrase"}
+{"id":"address-01","input":"收货地址填错了，可以改一下吗","expected_flow":"modify_order_receive_info","category":"paraphrase"}
+{"id":"logistics-01","input":"快递到哪儿了","expected_flow":"query_shipping_order_logistics","category":"paraphrase"}
+{"id":"company-01","input":"你们支持哪些快递公司","expected_flow":"query_logistics_companys","category":"explicit"}
+{"id":"postsale-01","input":"东西坏了，我想申请换货","expected_flow":"apply_postsale","category":"explicit"}

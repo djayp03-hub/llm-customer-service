@@ -13,6 +13,7 @@ import importlib.util
 import inspect
 import logging
 import sys
+from atguigu_ai.shared.session_runtime import serialized_message
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -225,6 +226,7 @@ class Agent:
             command_generator=self.command_generator,
         )
     
+    @serialized_message
     async def handle_message(
         self,
         message: str,
@@ -277,6 +279,7 @@ class Agent:
             messages=final_responses,
             metadata={
                 "node_history": node_history,
+                "node_timings": final_state.get("node_timings", []),
                 "error": error,
             },
         )

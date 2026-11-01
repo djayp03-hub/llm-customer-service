@@ -64,6 +64,7 @@ class MessageProcessingState(TypedDict, total=False):
     
     # 调试信息
     node_history: List[str]
+    node_timings: List[Dict[str, Any]]
     error: Optional[str]
     
     # 组件引用（内部使用，以 _ 开头）

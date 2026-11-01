@@ -82,6 +82,10 @@ async def action_node(state: "MessageProcessingState") -> Dict[str, Any]:
                 "enable_thinking": config.enable_thinking,
             }
         
+        # Identity comes from the server context, never from client slots.
+        from atguigu_ai.shared.identity import authenticated_user
+        if authenticated_user.get():
+            tracker.set_slot("user_id", authenticated_user.get())
         # 执行动作
         result = await action.run(tracker, domain, **kwargs)
         

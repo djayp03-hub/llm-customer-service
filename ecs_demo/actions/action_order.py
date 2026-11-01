@@ -662,6 +662,9 @@ class ActionCancelOrder(Action):
     ) -> ActionResult:
         from actions.db import SessionLocal
         from actions.db_table_class import OrderInfo
+        from order_service import cancel_order
+        from atguigu_ai.shared.identity import authenticated_user
+        import asyncio
         
         result = ActionResult()
         order_id = tracker.get_slot("order_id")
@@ -671,32 +674,27 @@ class ActionCancelOrder(Action):
             return result
         
         try:
-            with SessionLocal() as session:
-                order_info = session.query(OrderInfo).filter_by(order_id=order_id).first()
-                
-                if not order_info:
-                    result.add_response("未找到该订单，请检查订单号是否正确。")
-                    return result
-                
-                # 获取当前订单状态
-                old_order_status = order_info.order_status
-                
-                # 更新订单状态为已取消
-                order_info.order_status = "已取消"
-                order_info.complete_time = datetime.now()
-                session.commit()
-            
-            # 生成回复消息
-            message = "订单已取消"
-            # 如果订单状态为待发货，则添加退款金额提示
-            if old_order_status == "待发货":
-                message += "，退款金额将在24小时内返还您的账户"
-            
-            result.add_response(message)
-            logger.info(f"订单 {order_id} 已取消，原状态: {old_order_status}")
+            if tracker.get_slot("if_cancel_order") is not True:
+                result.success = False
+                result.add_response("请先确认是否取消该订单。")
+                return result
+            status = await asyncio.to_thread(
+                cancel_order, SessionLocal, OrderInfo, order_id,
+                authenticated_user.get(),
+            )
+            result.success = status in {"cancelled", "already_cancelled"}
+            result.metadata["operation_status"] = status
+            result.add_response({
+                "cancelled": "订单已取消。退款如适用，请以实际退款记录为准。",
+                "already_cancelled": "该订单已取消，无需重复操作。",
+                "unauthenticated": "请先通过身份认证后再取消订单。",
+                "not_found": "未找到可操作的订单。",
+                "conflict": "订单状态已变化，当前无法取消，请重新查询。",
+            }[status])
             
         except Exception as e:
             logger.error(f"取消订单失败: {e}")
+            result.success = False
             result.add_response("取消失败，请稍后重试。")
         
         return result

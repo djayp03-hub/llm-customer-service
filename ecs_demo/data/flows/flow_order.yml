@@ -121,6 +121,7 @@ flows:
       - id: get_order_detail  # 查询此订单的详情
         action: action_get_order_detail
       - collect: if_cancel_order  # 询问是否取消订单，自动调用utter_ask_if_cancel_order，button显示是/否
+        ask_before_filling: true  # 再次进入取消流程时，不能沿用上一次确认
         next:
           - if: slots.if_cancel_order  # 确认取消订单
             then:

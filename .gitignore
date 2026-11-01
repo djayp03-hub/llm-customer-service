@@ -26,3 +26,7 @@ trackers/
 
 # Personal resume; upload source code and project documentation only
 邸嘉攀简历.md
+
+# Real evaluation inputs/outputs can include customer data
+evaluation/predictions*.jsonl
+evaluation/reports/

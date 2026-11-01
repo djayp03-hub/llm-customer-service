@@ -1,0 +1,9 @@
+# Lightweight tests; no local embedding model, Neo4j or MySQL server required.
+SQLAlchemy>=2.0,<3
+fastapi>=0.115
+httpx>=0.27
+httpx2
+PyYAML>=6
+Jinja2>=3
+langgraph>=0.2
+numpy>=1.26
